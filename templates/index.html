@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Classifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Iris Classifier</h1>
+        
+        <form id="predict-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Sepal Length</label>
+                <input type="number" step="0.1" name="sepal_length" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Sepal Width</label>
+                <input type="number" step="0.1" name="sepal_width" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Petal Length</label>
+                <input type="number" step="0.1" name="petal_length" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Petal Width</label>
+                <input type="number" step="0.1" name="petal_width" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">Predict</button>
+        </form>
+
+        <div id="result" class="mt-6 hidden p-4 bg-gray-50 rounded-lg">
+            <h2 class="text-lg font-semibold text-gray-800">Prediction: <span id="prediction-text" class="text-indigo-600"></span></h2>
+            <div id="probabilities" class="mt-2 text-sm text-gray-600"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predict-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            document.getElementById('prediction-text').innerText = result.prediction;
+            
+            const probDiv = document.getElementById('probabilities');
+            probDiv.innerHTML = '<p class="font-medium">Probabilities:</p>';
+            for (const [flower, prob] of Object.entries(result.probabilities)) {
+                probDiv.innerHTML += `<p>${flower}: ${(prob * 100).toFixed(2)}%</p>`;
+            }
+            
+            document.getElementById('result').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
